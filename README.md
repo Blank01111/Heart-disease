@@ -30,6 +30,8 @@ There are also a lot more males (748) than females in this data set (270). Chest
 
 ### A note on outliers
 
-There were a total of 171 patients having a total cholesterol of 0 with one having a resting systolic blood pressure of 0. These values are impossible, so, with very little information to go on, we will just remove these variables. Looking at the boxplots of cholesterol and systolic blood pressure, there are a few very unusually high values which could have an impact on our analysis (the highest observed was 15.59358). We will then treat all resting systolic blood pressures greater than 170 and cholesterols greater than 9.73629 as potential outliers. These ranges where decided by the range boxplots used to determine potential outliers $Lower quartile + 1.5 \times Interquartile range$
+There were a total of 171 patients having a total cholesterol of 0 with one having a resting systolic blood pressure of 0. These values are impossible, so, with very little information to go on, we will just remove these variables. Looking at the boxplots of cholesterol and systolic blood pressure, there are a few very unusually high values which could have an impact on our analysis (the highest observed was 15.59358). We will then treat all resting systolic blood pressures greater than 170 and cholesterols greater than 9.73629 as potential outliers. These ranges where decided by the range boxplots used to determine potential outliers $Lower quartile+1.5*Interquartile range$. We will then fit a Bayesian network with the full data set and another one without the potential outliers and compare. 
 
-. We will then fit a Bayesian network with the full data set and another one without the potential outliers and compare. 
+<img width="863" height="542" alt="Screenshot From 2026-11-11 17-56-24" src="https://github.com/user-attachments/assets/733f7c3f-1ca0-4244-97e5-e8eec77a0509" />
+
+
