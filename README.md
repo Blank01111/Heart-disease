@@ -22,8 +22,14 @@ When dealing with maximum heart rate, we used information from (American Heart A
 
 ### Spread of categories
 
+The age category has very few patients who are in their 20s and 70s with 6 and 26 observations respectively. There are more people in their 30s (90 observations), 40s (273), 60s, (206) with the most by far being in their 50s (417).  
 
+<img width="863" height="542" alt="Screenshot From 2026-11-11 17-12-53" src="https://github.com/user-attachments/assets/8b122b4c-f585-47a1-b3bb-f736a5226fc4" />
 
-### Notes on outliers
+There are also a lot more males (748) than females in this data set (270). Chest pain type has an even spread of observations with atypical angina (209) and non-angina pain (249). Much less observations have a category of typical angina whilst many more have asymptomatic chest pain type (499). Resting blood pressure has an even spread of patients in the optimal (317) and very high (363) categories with fewer in the normal (96) and high (242) categories. As for cholesterol, many more patients had high cholesterol (876) than normal cholesterol (142). Likewise, many more patients had a fasting blood sugar of less than 120 (853) than greater than it (165). Most patients had a normal resting ecg (577) whilst fewer had an abnormality (128) and left ventricular hypertrophy (313). As for maximum heart rate, most had a high one (549) whilst slightly less had a normal one (324) and much less had a low one (145). Many more patients had an exercise angina (641) than not (377). The balance between the patient's old peaks is pretty much even as is the target categories with slightly more patients not having heart disease (541 compared to 476). Finally, many more patients had an upsloping (480) and flat (476) ST slope with few having a downsloping one (61).
 
-171 observations of the patients had 0 cholesterol and 1 had a resting systolic blood pressure of 0. These values are impossible and so, with much less information to go on, we removed these observations. Several of the observations had very large values for their cholesterol and blood pressure. Treating observations with blood pressure greater than 170 and cholesterol greater than 9.73629 were considered possible outliers. We also consider systolic blood pressure less than 90 an outlier which is especially small for this data set. We will fit and interpret 2 Bayesian networks, one with all the observations and another without possible outliers. Here, 61 observations are treated as possible outliers whilst 956 are not. 
+### A note on outliers
+
+There were a total of 171 patients having a total cholesterol of 0 with one having a resting systolic blood pressure of 0. These values are impossible, so, with very little information to go on, we will just remove these variables. Looking at the boxplots of cholesterol and systolic blood pressure, there are a few very unusually high values which could have an impact on our analysis (the highest observed was 15.59358). We will then treat all resting systolic blood pressures greater than 170 and cholesterols greater than 9.73629 as potential outliers. These ranges where decided by the range boxplots used to determine potential outliers $Lower quartile + 1.5 \times Interquartile range$
+
+. We will then fit a Bayesian network with the full data set and another one without the potential outliers and compare. 
