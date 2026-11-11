@@ -1,0 +1,611 @@
+---
+output: pdf_document
+---
+
+```{r}
+# Removing all saved variables
+rm(list = ls())
+```
+
+```{r}
+# Loading processed data set and viewing first 6 rows
+heartdisease.final <- read.csv("heartdisease_new.csv")
+head(heartdisease.final)
+```
+
+```{r}
+for (i in 1:12){
+  # Looping through each variable making all of them factors
+  heartdisease.final[,i] <- as.factor(heartdisease.final[,i])
+}
+```
+
+```{r}
+# Removing the outlier marker variable
+heartdisease.all <- heartdisease.final[,-13]
+```
+
+```{r}
+library(bnlearn)
+```
+
+```{r}
+# Setting a seed
+set.seed(2026)
+```
+
+```{r}
+# Cross-validation
+cv.results.aic <- bn.cv(
+  # The data set
+  data = heartdisease.all,
+  # The hill climbing algorithm
+  bn = "hc",
+  # Using AIC in hill climbing algorithm
+  algorithm.args = list(score = "aic"),
+  # Using Bayesian reasoning to estimate probabilities
+  fit = "bayes",
+  # How much influence the prior has on the fitted probability
+  fit.args = list(iss = 2),
+  # Loss function for the cross validation (log-likelihood)
+  loss =  "logl",
+  # Number of folds
+  k = 10,
+  # Number of times to  repeat the 10-fold cross-validation
+  runs = 5
+)
+# Outputting the cross-validation results
+print(cv.results.aic)
+```
+
+```{r}
+# Cross-validation
+cv.results.bic <- bn.cv(
+  # The data set
+  data = heartdisease.all,
+  # The hill climbing algorithm
+  bn = "hc",
+  # Using BIC in hill climbing algorithm
+  algorithm.args = list(score = "bic"),
+  # Using Bayesian reasoning to estimate probabilities
+  fit = "bayes",
+  # How much influence the prior has on the fitted probability
+  fit.args = list(iss = 2),
+  # Loss function for the cross validation (log-likelihood)
+  loss =  "logl",
+  # Number of folds
+  k = 10,
+  # Number of times to  repeat the 10-fold cross-validation
+  runs = 5
+  )
+# Outputting the cross-validation results
+print(cv.results.bic)
+```
+
+```{r}
+# Fitting the network structure using hill-climbing and AIC
+all.aic.net <- hc(heartdisease.all, score = "aic")
+# Fitting the connection probabilities
+all.bn.aic <- bn.fit(all.aic.net, data = heartdisease.all, method = "bayes", 
+                     iss = 2)
+# Fitting the network structure using hill-climbing and BIC
+all.bic.net <- hc(heartdisease.all, score = "bic")
+# Fitting the connection probabilities
+all.bn.bic <- bn.fit(all.bic.net, data = heartdisease.all, method = "bayes", 
+                     iss = 2)
+```
+
+```{r}
+library(Rgraphviz)
+```
+
+```{r}
+# Plotting the network that used the AIC for structure fitting
+graphviz.plot(all.aic.net)
+```
+
+```{r}
+# Plotting the network that used the BIC for structure fitting
+graphviz.plot(all.bic.net)
+```
+
+```{r}
+library(gRain)
+```
+
+```{r}
+junction <- as.grain(all.bn.bic)
+# Compiling all network probabilities as a query grain
+# Getting the estimated probabilities of the target variable (P(Target))
+querygrain(junction, nodes = "target")$target
+```
+
+```{r}
+# Checking if target and fastting blood sugar variables are d-seperated
+dsep(all.bn.bic, "target", "fasting.blood.sugar")
+```
+
+
+```{r}
+# Setting the evidence of fasting blood sugar being "Less than 120"
+jblood.sugar.less <- setEvidence(junction, nodes = "fasting.blood.sugar", 
+                                 states = "Less than 120")
+# P(target | fasting.blood.sugar = Less than 120)
+querygrain(jblood.sugar.less, nodes = "target")$target
+```
+
+```{r}
+# Setting the evidence of fasting blood sugar being "Greater than 120"
+jblood.sugar.greater <- setEvidence(junction, nodes = "fasting.blood.sugar", 
+                                    states = "Greater than 120")
+# P(target | fasting.blood.sugar = Greater than 120)
+querygrain(jblood.sugar.greater, nodes = "target")$target
+```
+
+```{r}
+# Getting the probabilities associated with resting bp s variable
+querygrain(junction, nodes = "resting.bp.s")$resting.bp.s
+```
+
+
+```{r}
+# P(resting.bp.s | fasting.blood.sugar = Less than 120)
+querygrain(jblood.sugar.less, nodes = "resting.bp.s")$resting.bp.s
+```
+
+```{r}
+# P(resting.bp.s | fasting.blood.sugar = Greater than 120)
+querygrain(jblood.sugar.greater, nodes = "resting.bp.s")$resting.bp.s
+```
+
+```{r}
+# Empty vector to store probabilities
+probs.hd.age <- c()
+# Storing the levels of the age variable
+ages <- levels(heartdisease.all$age)
+# Looping through each level of age
+for (age in ages){
+  # Setting the evidence of the current level of age
+  j.age <- setEvidence(junction, nodes = "age", states = age)
+  # Outputting the result
+  print(paste0("P(Target| age = ", age, ")"))
+  # P(target | age = Current level)
+  print(querygrain(j.age, nodes = "target")$target)
+  # Storing P(target = Heart disease| age = Current level)
+  probs.hd.age <- c(probs.hd.age, as.numeric(querygrain(j.age, 
+                                                nodes = "target")$target[1]))
+}
+```
+
+```{r}
+library(ggplot2)
+```
+
+
+```{r}
+# Plotting a line graph of age level and probability of having heart disease
+# Conditioned on it
+ggplot(data = NULL, aes(x = c(2:7), y = probs.hd.age)) + geom_line(color = 
+"blue") + scale_x_continuous(breaks=1:6, labels=c("20s", "30s", "40s", 
+                                                  "50s", "60s", "70s")) + 
+  labs(x = "Age", y = "P(target = Heartdisease | age = x)", 
+       title = "Probability of a patient having heart disease conditioned on 
+       their age") + 
+  theme(panel.background = element_rect(color = "blue"))
+```
+
+```{r}
+# Empty vector to store probabilities
+probs.hd.oldpeak = c()
+# Storing the levels of oldpeak variable
+oldpeaks <- levels(heartdisease.all$oldpeak)
+# Looping through each level
+for (oldpeak in oldpeaks){
+  # Setting the evidence of oldpeak with current level
+  j.oldpeak <- setEvidence(junction, nodes = "oldpeak", states = oldpeak)
+  # Outputting the results
+  print(paste0("P(Target| oldpeak = ", oldpeak, ")"))
+  # P(Target | oldpeak = Current level)
+  print(querygrain(j.oldpeak, nodes = "target")$target)
+  # Storing P(Target = heart disease | oldpeak = Current level)
+  probs.hd.oldpeak <- c(probs.hd.oldpeak, as.numeric(querygrain(j.oldpeak, 
+                                                nodes = "target")$target[1]))
+  # Storing P(Target = Normal | oldpeak = Current level)
+  probs.hd.oldpeak <- c(probs.hd.oldpeak, as.numeric(querygrain(j.oldpeak, 
+                                                nodes = "target")$target[2]))
+}
+# Creating an indicator for oldpeak
+oldpeak.indicator <- c("High", "High", "Normal", "Normal")
+# Combining probabilities and indicators storing as a data frame
+probs.hd.oldpeak.df <- as.data.frame(cbind(probs.hd.oldpeak, oldpeak.indicator))
+```
+
+```{r}
+# Plotting the oldpeak and heart disease probabilities
+ggplot() + geom_col(data = probs.hd.oldpeak.df, aes(x = c("Heart disease", 
+                                                          "Normal", "Heart disease", 
+                                                          "Normal"), 
+                                                    y = probs.hd.oldpeak, 
+                                                    fill = oldpeak.indicator),
+                    position = "dodge") +
+  labs(x = "Oldpeak", y = "P(target | oldpeak = x)", 
+       title = "Probability of a patient having or not having heart disease conditioned on 
+       their oldpeak") + guides(fill=guide_legend(title="Oldpeak")) + 
+  theme(panel.background = element_rect(color = "blue"))
+```
+
+```{r}
+# Empty vector to store probabilities
+probs.hd.ST.slope <- c()
+# Storing the levels of ST slope variable
+ST.slopes <- levels(heartdisease.all$ST.slope)
+# Looping through each level
+for (ST.slope in ST.slopes){
+  # Setting the evidence of ST slope being current level
+  j.ST.slope <- setEvidence(junction, nodes = "ST.slope", states = ST.slope)
+  # Outputting P(Target | ST.slope = current level)
+  print(paste0("P(Target| ST.slope = ", ST.slope, ")"))
+  print(querygrain(j.ST.slope, nodes = "target")$target)
+  # Storing P(Target = Heart disease | ST.slope = current level)
+  probs.hd.ST.slope <- c(probs.hd.ST.slope, as.numeric(querygrain(j.ST.slope, 
+                                                  nodes = "target")$target[1]))
+  # Storing P(Target = Normal | ST.slope = current level)
+  probs.hd.ST.slope <- c(probs.hd.ST.slope, as.numeric(querygrain(j.ST.slope, 
+                                                  nodes = "target")$target[2]))
+}
+# Indicator for ST.slope
+ST.slope.indicator <- c("Downsloping", "Downsloping", "Flat", "Flat", 
+                        "Upsloping", "Upsloping")
+# Storing conditional probabilities as data frame
+probs.hd.ST.slope.df <- as.data.frame(cbind(probs.hd.ST.slope, 
+                                            ST.slope.indicator))
+
+```
+
+```{r}
+# Plotting the ST.slope and heart disease probabilities
+ggplot() + geom_col(data = probs.hd.ST.slope.df, aes(x = c("Heart disease", 
+                                                          "Normal", 
+                                                          "Heart disease", 
+                                                          "Normal",
+                                                          "Heart disease",
+                                                          "Normal"), 
+                                                     y = probs.hd.ST.slope, 
+          fill = ST.slope.indicator), position = "dodge") +
+  labs(x = "ST.slope", y = "P(target | ST.slope = x)", 
+       title = "Probability of a patient having or not having heart 
+       disease conditioned on 
+       their ST.slope") + guides(fill=guide_legend(title="ST.slope")) + 
+  scale_fill_manual(values = c("blue", "black", "red")) + 
+  theme(panel.background = element_rect(color = "blue"))
+```
+
+```{r}
+# Calculating P(Sex)
+querygrain(junction, nodes = "sex")$sex
+```
+
+
+```{r}
+probs.hd.target <- c()
+# Storing the levels of the target variable
+targets <- levels(heartdisease.all$target)
+# Looping through the levels
+for (target in targets){
+  # Setting the evidence of the target variable with current level
+  j.target <- setEvidence(junction, nodes = "target", states = target)
+  # Outputting the results
+  print(paste0("P(Sex| Target = ", target, ")"))
+  # P(sex | target = Current level)
+  print(querygrain(j.target, nodes = "sex")$sex)
+  # Storing P(sex = Female | target = x)
+  probs.hd.target <- c(probs.hd.target, as.numeric(querygrain(j.target, 
+                                                nodes = "sex")$sex[1]))
+  # Storing P(sex = Male | target = x)
+  probs.hd.target <- c(probs.hd.target, as.numeric(querygrain(j.target, 
+                                                nodes = "sex")$sex[2]))
+}
+# Indicator for sex variable
+target.indicator <- c("Heart disease", "Heart disease", "Normal", "Normal")
+# Storing probabilities as a data frame
+probs.hd.target.df <- as.data.frame(cbind(probs.hd.target, target.indicator))
+```
+
+```{r}
+# Plotting the probabilities of sex conditioned on target
+ggplot() + geom_col(data = probs.hd.target.df, aes(x = c("Female", 
+                                                         "Male", 
+                                                   "Female", "Male"), 
+                                             y = probs.hd.target, fill = 
+                                               target.indicator), position = 
+                      "dodge") +
+  labs(x = "Target", y = "P(sex | target = x)", 
+       title = "Probability of a patient being a sex conditioned on target") +
+  guides(fill=guide_legend(title="Target")) +
+  theme(panel.background = element_rect(color = "blue"))
+```
+
+```{r}
+# Data set excluding all possible outliers and excluding the outlier
+# indicator
+heartdisease.sub <- heartdisease.final[heartdisease.final$outlier == "No",-13]
+```
+
+```{r}
+# Cross validation
+cv.results.aic <- bn.cv(
+  # Data set used
+  data = heartdisease.sub,
+  # Hill climbing algorithm is being used
+  bn = "hc",
+  # Scoring for the hill climbing algorithm is AIC
+  algorithm.args = list(score = "aic"),
+  # Probability fit type (Bayesian)
+  fit = "bayes",
+  # How much influence the prior has on the fitted probability
+  fit.args = list(iss = 2),
+  # Loss function for the cross validation (log-likelihood)
+  loss =  "logl",
+  # Number of folds
+  k = 10,
+  # Number of times to  repeat the 10-fold cross-validation
+  runs = 5
+)
+# Outputting the results
+print(cv.results.aic)
+```
+
+```{r}
+# Cross validation
+cv.results.bic <- bn.cv(
+  # Data set used
+  data = heartdisease.sub,
+  # Hill climbing algorithm is being used
+  bn = "hc",
+  # Scoring for the hill climbing algorithm is BIC
+  algorithm.args = list(score = "bic"),
+  # Probability fit type (Bayesian)
+  fit = "bayes",
+  # How much influence the prior has on the fitted probability
+  fit.args = list(iss = 2),
+  # Loss function for the cross validation (log-likelihood)
+  loss =  "logl",
+  # Number of folds
+  k = 10,
+  # Number of times to  repeat the 10-fold cross-validation
+  runs = 5
+)
+# Outputting the results
+print(cv.results.bic)
+```
+
+```{r}
+# Fitting the AIC scoring hill climbing algorithm
+subset.aic.net <- hc(heartdisease.sub, score = "aic")
+# Estimating the probabilities using a Bayesian approach
+subset.bn.bde <- bn.fit(all.aic.net, data = heartdisease.all, method = "bayes", 
+                        iss = 2)
+# Fitting the BIC scoring hill climbing algorithm
+subset.bic.net <- hc(heartdisease.sub, score = "bic")
+# Estimating the probabilities using a Bayesian approach
+subset.bn.bic <- bn.fit(all.bic.net, data = heartdisease.all, method = "bayes", 
+                        iss = 2)
+```
+
+```{r}
+# Plotting the AIC scoring network
+graphviz.plot(subset.aic.net)
+```
+
+```{r}
+# Plotting the BIC scoring network
+graphviz.plot(all.bic.net)
+```
+
+```{r}
+# Compiling all fitted probabilities of the BIC network as a query grain
+junction <- as.grain(subset.bn.bic)
+# Predicted probabilities for the target variable
+querygrain(junction, nodes = "target")$target
+```
+
+```{r}
+# target and fasting blood sugar variables d-seperated?
+dsep(subset.bn.bic, "target", "fasting.blood.sugar")
+```
+
+
+```{r}
+# Setting evidence of fasting blood sugar to Less than 120
+jblood.sugar.less <- setEvidence(junction, nodes = "fasting.blood.sugar", 
+                                 states = "Less than 120")
+# P(target | fasting.blood.sugar = Less than 120)
+querygrain(jblood.sugar.less, nodes = "target")$target
+```
+
+```{r}
+# Setting evidence of fasting blood sugar to Greater than 120
+jblood.sugar.greater <- setEvidence(junction, nodes = "fasting.blood.sugar", 
+                                    states = "Greater than 120")
+# P(target | fasting.blood.sugar = Greater than 120)
+querygrain(jblood.sugar.greater, nodes = "target")$target
+```
+
+```{r}
+# Probabilities of resting bp s
+querygrain(junction, nodes = "resting.bp.s")$resting.bp.s
+```
+
+
+```{r}
+# P(resting.bp.s | fasting.blood.sugar = Less than 120)
+querygrain(jblood.sugar.less, nodes = "resting.bp.s")$resting.bp.s
+```
+
+```{r}
+# P(resting.bp.s | fasting.blood.sugar = Greater than 120)
+querygrain(jblood.sugar.greater, nodes = "resting.bp.s")$resting.bp.s
+```
+
+```{r}
+# Empty vector to store probabilities
+probs.hd.age <- c()
+# Storing the levels of the age variable
+ages <- levels(heartdisease.all$age)
+# Looping through each level of age
+for (age in ages){
+  # Setting the evidence of the current level of age
+  j.age <- setEvidence(junction, nodes = "age", states = age)
+  # Outputting the result
+  print(paste0("P(Target| age = ", age, ")"))
+  # P(target | age = Current level)
+  print(querygrain(j.age, nodes = "target")$target)
+  # Storing P(target = Heart disease| age = Current level)
+  probs.hd.age <- c(probs.hd.age, as.numeric(querygrain(j.age, 
+                                                nodes = "target")$target[1]))
+}
+```
+
+
+```{r}
+# Plotting a line graph of age level and probability of having heart disease
+# Conditioned on it
+ggplot(data = NULL, aes(x = c(2:7), y = probs.hd.age)) + geom_line(color = 
+"blue") + scale_x_continuous(breaks=1:6, labels=c("20s", "30s", "40s", 
+                                                  "50s", "60s", "70s")) + 
+  labs(x = "Age", y = "P(target = Heartdisease | age = x)", 
+       title = "Probability of a patient having heart disease conditioned on 
+       their age") + 
+  theme(panel.background = element_rect(color = "blue"))
+```
+
+```{r}
+# Empty vector to store probabilities
+probs.hd.oldpeak = c()
+# Storing the levels of oldpeak variable
+oldpeaks <- levels(heartdisease.all$oldpeak)
+# Looping through each level
+for (oldpeak in oldpeaks){
+  # Setting the evidence of oldpeak with current level
+  j.oldpeak <- setEvidence(junction, nodes = "oldpeak", states = oldpeak)
+  # Outputting the results
+  print(paste0("P(Target| oldpeak = ", oldpeak, ")"))
+  # P(Target | oldpeak = Current level)
+  print(querygrain(j.oldpeak, nodes = "target")$target)
+  # Storing P(Target = heart disease | oldpeak = Current level)
+  probs.hd.oldpeak <- c(probs.hd.oldpeak, as.numeric(querygrain(j.oldpeak, 
+                                                nodes = "target")$target[1]))
+  # Storing P(Target = Normal | oldpeak = Current level)
+  probs.hd.oldpeak <- c(probs.hd.oldpeak, as.numeric(querygrain(j.oldpeak, 
+                                                nodes = "target")$target[2]))
+}
+# Creating an indicator for oldpeak
+oldpeak.indicator <- c("High", "High", "Normal", "Normal")
+# Combining probabilities and indicators storing as a data frame
+probs.hd.oldpeak.df <- as.data.frame(cbind(probs.hd.oldpeak, oldpeak.indicator))
+```
+
+```{r}
+# Plotting the oldpeak and heart disease probabilities
+ggplot() + geom_col(data = probs.hd.oldpeak.df, aes(x = c("Heart disease", 
+                                                          "Normal", "Heart disease", 
+                                                          "Normal"), 
+                                                    y = probs.hd.oldpeak, 
+                                                    fill = oldpeak.indicator),
+                    position = "dodge") +
+  labs(x = "Oldpeak", y = "P(target | oldpeak = x)", 
+       title = "Probability of a patient having or not having heart disease conditioned on 
+       their oldpeak") + guides(fill=guide_legend(title="Oldpeak")) + 
+  theme(panel.background = element_rect(color = "blue"))
+```
+
+```{r}
+# Empty vector to store probabilities
+probs.hd.ST.slope <- c()
+# Storing the levels of ST slope variable
+ST.slopes <- levels(heartdisease.all$ST.slope)
+# Looping through each level
+for (ST.slope in ST.slopes){
+  # Setting the evidence of ST slope being current level
+  j.ST.slope <- setEvidence(junction, nodes = "ST.slope", states = ST.slope)
+  # Outputting P(Target | ST.slope = current level)
+  print(paste0("P(Target| ST.slope = ", ST.slope, ")"))
+  print(querygrain(j.ST.slope, nodes = "target")$target)
+  # Storing P(Target = Heart disease | ST.slope = current level)
+  probs.hd.ST.slope <- c(probs.hd.ST.slope, as.numeric(querygrain(j.ST.slope, 
+                                                  nodes = "target")$target[1]))
+  # Storing P(Target = Normal | ST.slope = current level)
+  probs.hd.ST.slope <- c(probs.hd.ST.slope, as.numeric(querygrain(j.ST.slope, 
+                                                  nodes = "target")$target[2]))
+}
+# Indicator for ST.slope
+ST.slope.indicator <- c("Downsloping", "Downsloping", "Flat", "Flat", 
+                        "Upsloping", "Upsloping")
+# Storing conditional probabilities as data frame
+probs.hd.ST.slope.df <- as.data.frame(cbind(probs.hd.ST.slope, 
+                                            ST.slope.indicator))
+
+```
+
+```{r}
+# Plotting the ST.slope and heart disease probabilities
+ggplot() + geom_col(data = probs.hd.ST.slope.df, aes(x = c("Heart disease", 
+                                                          "Normal", 
+                                                          "Heart disease", 
+                                                          "Normal",
+                                                          "Heart disease",
+                                                          "Normal"), 
+                                                     y = probs.hd.ST.slope, 
+          fill = ST.slope.indicator), position = "dodge") +
+  labs(x = "ST.slope", y = "P(target | ST.slope = x)", 
+       title = "Probability of a patient having or not having heart 
+       disease conditioned on 
+       their ST.slope") + guides(fill=guide_legend(title="ST.slope")) + 
+  scale_fill_manual(values = c("blue", "black", "red")) + 
+  theme(panel.background = element_rect(color = "blue"))
+```
+
+```{r}
+# Calculating P(Sex)
+querygrain(junction, nodes = "sex")$sex
+```
+
+
+```{r}
+probs.hd.target <- c()
+# Storing the levels of the target variable
+targets <- levels(heartdisease.all$target)
+# Looping through the levels
+for (target in targets){
+  # Setting the evidence of the target variable with current level
+  j.target <- setEvidence(junction, nodes = "target", states = target)
+  # Outputting the results
+  print(paste0("P(Sex| Target = ", target, ")"))
+  # P(sex | target = Current level)
+  print(querygrain(j.target, nodes = "sex")$sex)
+  # Storing P(sex = Female | target = x)
+  probs.hd.target <- c(probs.hd.target, as.numeric(querygrain(j.target, 
+                                                nodes = "sex")$sex[1]))
+  # Storing P(sex = Male | target = x)
+  probs.hd.target <- c(probs.hd.target, as.numeric(querygrain(j.target, 
+                                                nodes = "sex")$sex[2]))
+}
+# Indicator for sex variable
+target.indicator <- c("Heart disease", "Heart disease", "Normal", "Normal")
+# Storing probabilities as a data frame
+probs.hd.target.df <- as.data.frame(cbind(probs.hd.target, target.indicator))
+```
+
+```{r}
+# Plotting the probabilities of sex conditioned on target
+ggplot() + geom_col(data = probs.hd.target.df, aes(x = c("Female", 
+                                                         "Male", 
+                                                   "Female", "Male"), 
+                                             y = probs.hd.target, fill = 
+                                               target.indicator), position = 
+                      "dodge") +
+  labs(x = "Target", y = "P(sex | target = x)", 
+       title = "Probability of a patient being a sex conditioned on target") +
+  guides(fill=guide_legend(title="Target")) +
+  theme(panel.background = element_rect(color = "blue"))
+```

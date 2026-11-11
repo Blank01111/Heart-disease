@@ -1,0 +1,445 @@
+---
+output: pdf_document
+---
+
+```{r}
+# Removing all saved variables
+rm(list = ls())
+```
+
+
+```{r}
+# Loading our data
+heartdisease <- read.csv("heart_statlog_cleveland_hungary_final.csv")
+heartdisease <- na.omit(heartdisease)
+head(heartdisease)
+```
+
+```{r}
+# Getting the number of rows of the data
+nrow(heartdisease)
+```
+
+```{r}
+# Creating a copy of the data
+heartdisease.labelled <- heartdisease
+```
+
+## Values not possible to have
+
+```{r}
+# Number of observations with resting.bp.s = 0
+nrow(heartdisease[heartdisease$resting.bp.s == 0, ])
+```
+
+```{r}
+# Removing all entries with 0 blood pressure from
+# both data frames
+heartdisease <- heartdisease[heartdisease$resting.bp.s != 0,]
+heartdisease.labelled <- heartdisease.labelled[heartdisease.labelled$resting.bp.s != 0,]
+```
+
+```{r}
+# Number of observations with cholesterol = 0
+nrow(heartdisease[heartdisease$cholesterol == 0, ])
+```
+
+
+```{r}
+# Removing all rows with 0 cholesterol in both data frames
+heartdisease <- heartdisease[heartdisease$cholesterol != 0,]
+heartdisease.labelled <- heartdisease.labelled[heartdisease.labelled$cholesterol != 0,]
+```
+
+```{r}
+library(ggplot2)
+```
+
+### Visualizing the data
+
+```{r}
+# Making a histogram for age
+ggplot(heartdisease, aes(x = age)) + geom_histogram() + 
+  labs(title = "Histogram of age", x = "Age (Years)")
+```
+
+```{r}
+# Making a boxplot of age
+ggplot(heartdisease, aes(x = age)) + geom_boxplot() + 
+  labs(title = "Boxplot of age", x = "Age (Years)")
+```
+
+
+```{r}
+# Summary statistics for age
+print(paste0("Mean Age: ", round(mean(heartdisease$age), 3)))
+print(paste0("SD Age: ", round(sd(heartdisease$age)), 3))
+print(paste0("Median Age: ", median(heartdisease$age)))
+print(paste0("IQR Age: ", quantile(heartdisease$age, 0.75) - quantile(heartdisease$age, 0.25)))
+print(paste0("Min Age: ", min(heartdisease$age)))
+print(paste0("Max Age: ", max(heartdisease$age)))
+```
+
+```{r}
+# Labels for our age variable
+heartdisease.labelled$age <- cut(heartdisease$age,
+                                 breaks = c(seq(20, 80, 10)),
+                                 labels = c("20s", "30s", "40s",
+                                            "50s", "60s", "70s"))
+```
+
+```{r}
+# Bar plot of labelled age
+ggplot(heartdisease.labelled, aes(x = age)) + 
+  geom_bar() + labs(title = "Bar plot of age", x = "Age")
+```
+
+```{r}
+# Table of counts for new age variable
+table(heartdisease.labelled$age)
+```
+
+
+```{r}
+# Labelling our sex variable
+heartdisease.labelled$sex <- ifelse(heartdisease$sex == 1, 
+                                    "Male", "Female")
+# Bar plot of our sex variable
+ggplot(heartdisease.labelled, aes(x = sex)) + 
+  geom_bar() + labs(title = "Bar plot of sex", x = "Sex")
+```
+
+```{r}
+# Table of counts for new sex variable
+table(heartdisease.labelled$sex)
+```
+
+```{r}
+# Labels for our mappings chest pain type variable
+mappings.chest <- c("1" = "Typical angina", "2" = "Atypical angina", #
+                    "3" = "Non-anginal pain", "4" = "Asymptomatic")
+# Applying the labels to our variable
+heartdisease.labelled$chest.pain.type <- mappings.chest[as.character(heartdisease$chest.pain.type)]
+# Bar  plot of chest pain type
+ggplot(heartdisease.labelled, aes(x = chest.pain.type)) +
+  geom_bar() + labs(title = "Bar plot of chest pain type", 
+                    x = "Chest pain type")
+```
+
+```{r}
+# Table of counts for new chest pain type variable
+table(heartdisease.labelled$chest.pain.type)
+```
+
+```{r}
+# Histogram of resting blood pressure
+ggplot(heartdisease, aes(x = resting.bp.s)) + geom_histogram() +
+  labs(title = "Histogram of resting systolic blood pressure",
+       x = "Systolic blood pressure (mmHg)")
+```
+
+```{r}
+# Box plot of resting blood pressure
+ggplot(heartdisease, aes(x = resting.bp.s)) + geom_boxplot() +
+  labs(title = "Boxplot of resting systolic blood pressure",
+       x = "Systolic blood pressure (mmHg)")
+```
+
+
+```{r}
+# Summary statistics of blood pressure
+print(paste0("Mean Resting BP S: ", round(mean(heartdisease$resting.bp.s), 3)))
+print(paste0("SD Resting BP S: ", round(sd(heartdisease$resting.bp.s)), 3))
+print(paste0("Median Resting BP S: ", median(heartdisease$resting.bp.s)))
+print(paste0("IQR Resting BP S: ", quantile(heartdisease$resting.bp.s, 0.75) - quantile(heartdisease$resting.bp.s, 0.25)))
+print(paste0("Min Resting BP S: ", min(heartdisease$resting.bp.s)))
+print(paste0("Max Resting BP S: ", max(heartdisease$resting.bp.s)))
+```
+
+```{r}
+# Making labels for resting blood pressure
+heartdisease.labelled$resting.bp.s <- cut(heartdisease$resting.bp.s,
+breaks = c(90, 120, 129, 139, 200),
+labels = c("Optimal", "Normal", "High", "Very High"))
+```
+
+```{r}
+# Bar plot of resting blood pressure labels
+ggplot(heartdisease.labelled, aes(x = resting.bp.s)) + 
+  geom_bar() + 
+  labs(title = "Barplot of resting systolic blood pressure", x =
+         "Resting systolic blood pressure")
+```
+
+```{r}
+# Table of counts for new resting blood pressure systolic variable
+table(heartdisease.labelled$resting.bp.s)
+```
+
+```{r}
+# Converting our total cholesterol from mg/dl to mmol/L
+heartdisease$cholesterol <- 0.02586 * heartdisease$cholesterol
+# Histogram of cholesterol
+ggplot(heartdisease, aes(x = cholesterol)) + geom_histogram() +
+  labs(title = "Histogram of total cholesterol", 
+       x = "Total cholesterol (mmol/L)")
+```
+
+```{r}
+# Boxplot of cholesterol
+ggplot(heartdisease, aes(x = cholesterol)) + geom_boxplot() +
+  labs(title = "Boxplot of total cholesterol", 
+       x = "Total cholesterol (mmol/L)")
+```
+
+```{r}
+# Summary statistics for cholesterol
+print(paste0("Mean Cholesterol: ", round(mean(heartdisease$cholesterol), 3)))
+print(paste0("SD Cholesterol: ", round(sd(heartdisease$cholesterol)), 3))
+print(paste0("Median Cholesterol: ", median(heartdisease$cholesterol)))
+print(paste0("IQR Cholesterol: ", quantile(heartdisease$cholesterol, 0.75) - quantile(heartdisease$cholesterol, 0.25)))
+print(paste0("Min Cholesterol: ", min(heartdisease$cholesterol)))
+print(paste0("Max Cholesterol: ", max(heartdisease$cholesterol)))
+```
+
+```{r}
+# Making labels for cholesterol
+heartdisease.labelled$cholesterol <-
+  ifelse(heartdisease$cholesterol < 5, "Normal", "High")
+```
+
+```{r}
+# Bar plot of labelled cholesterol
+ggplot(heartdisease.labelled, aes(x = cholesterol)) + geom_bar() +
+  labs(title = "Bar plot of total cholesterol", 
+       x = "Total cholesterol")
+```
+
+```{r}
+# Table of counts for new cholesterol variable
+table(heartdisease.labelled$cholesterol)
+```
+
+```{r}
+# Labelling fasting blood sugar variable
+heartdisease.labelled$fasting.blood.sugar <- ifelse(heartdisease$fasting.blood.sugar == 1, 
+      "Greaster than 120", "Less than 120")
+# Bar plot for fasting blood sugar
+ggplot(heartdisease.labelled, aes(x = fasting.blood.sugar)) +
+  geom_bar()
+```
+
+```{r}
+# Table of counts for new fasting blood sugar variable
+table(heartdisease.labelled$fasting.blood.sugar)
+```
+
+```{r}
+# Labels for resting ecg variable
+mappings.ecg <- c("0" = "Normal", "1" = "Abnormality", 
+                  "2" = "Left venticular hypertrophy")
+# Applying the labels for this variable
+heartdisease.labelled$resting.ecg <- mappings.ecg[as.character(heartdisease$resting.ecg)]
+# Bar plot for resting ecg labels
+ggplot(heartdisease.labelled, aes(x = resting.ecg)) + geom_bar() +
+  labs(title = "Bar plot of resting ecg", x = "Resting ecg")
+```
+
+```{r}
+# Table of counts for new resting ecg variable
+table(heartdisease.labelled$resting.ecg)
+```
+
+```{r}
+#  Histogram of max heart rate
+ggplot(heartdisease, aes(x = max.heart.rate)) + 
+  geom_histogram() + labs(title = "Histogram of Maximum heart rate", x = "Maximum heart rate (bpm)")
+```
+
+```{r}
+# Boxplot of max heart rate
+ggplot(heartdisease, aes(heartdisease$max.heart.rate)) + geom_boxplot() + labs(title = "Boxplot of Maximum heart rate",
+                        x = "Maximum heart rate (bpm)")
+```
+
+```{r}
+# Summary statistics of maximum heart rate
+print(paste0("Mean max heartrate S: ", round(mean(heartdisease$max.heart.rate), 3)))
+print(paste0("SD max heartrate: ", round(sd(heartdisease$max.heart.rate)), 3))
+print(paste0("Median max heartrate: ", median(heartdisease$max.heart.rate)))
+print(paste0("IQR max heartrate: ", quantile(heartdisease$max.heart.rate, 0.75) - quantile(heartdisease$max.heart.rate, 0.25)))
+print(paste0("Minimum max heartrate: ", min(heartdisease$max.heart.rate)))
+print(paste0("Maximum max heartrate: ", max(heartdisease$max.heart.rate)))
+```
+
+
+```{r}
+library(dplyr)
+```
+
+```{r}
+# Coding max hear rate column
+heartdisease.labelled <- heartdisease.labelled %>%
+  mutate(max.heart.rate = case_when(
+    # Checking if max heart rate is below usual range
+    max.heart.rate < 0.7*(220 - heartdisease$age) ~ "Low",
+    # Checking if max heart rate is above usual range
+    max.heart.rate > 0.85*(220 - heartdisease$age) ~ "High",
+    # If max heart rate is in usual range
+    TRUE ~ "Normal"
+  )) 
+```
+
+```{r}
+# Bar plot for max heart rate labels
+ggplot(heartdisease.labelled, aes(x = max.heart.rate)) +
+  geom_bar() + labs(title = "Bar plot of max heart rate", 
+                    x = "Maximum heart rate")
+```
+
+```{r}
+# Table of counts for new maximum heart rate variable
+table(heartdisease.labelled$max.heart.rate)
+```
+
+```{r}
+# Making labels for exercise angina variable
+heartdisease.labelled$exercise.angina <- ifelse(heartdisease$exercise.angina == 1, "Yes", "No")
+# Bar plot for exercise angina variable
+ggplot(heartdisease.labelled, aes(x = exercise.angina)) +
+  geom_bar() + labs(title = "Bar plot of exercise angina", 
+              x = "Exercise angina") 
+```
+
+```{r}
+# Table of counts for new exercise angina variable
+table(heartdisease.labelled$exercise.angina)
+```
+
+```{r}
+# Histogram for old peak
+ggplot(heartdisease, aes(x = oldpeak)) + geom_histogram() +
+   labs(title = "Histogram of old peak depression", x = "Old peak depression (mm)")
+```
+
+```{r}
+# Boxplot for old peak
+ggplot(heartdisease, aes(x = oldpeak)) + geom_boxplot() +
+   labs(title = "Boxplot of old peak depression", 
+        x = "Old peak depression (mm)")
+```
+
+```{r}
+# Labelling the old peak depression variable
+heartdisease.labelled <- heartdisease.labelled %>%
+  mutate(oldpeak = case_when(
+    # Checking if patient is in their 30s or 40s and old peak 
+    #depression is in range
+    (age == "20s" | age == "30s") & oldpeak <= 0.3 ~ "Normal",
+    # Checking if patient is in their 30s or 40s and old peak 
+    #depression is not in range
+    (age == "20s" | age == "30s") & oldpeak > 0.3 ~ "High",
+    # Checking if patient is in not in their 20s and 30s and 
+    # old peak depression is in range
+    (age != "20s" & age != "30s") & oldpeak <= 0.25 ~ "Normal",
+    # Checking if patient is in not in their 20s and 30s and 
+    # old peak depression is not in range
+    TRUE ~ "High"
+  ))
+```
+
+
+```{r}
+# Bar plot for labelled old peak
+ggplot(heartdisease.labelled, aes(x = oldpeak)) + geom_bar() +
+  labs(title = "Barplot of old peak depression",
+       x = "Old peak depression")
+```
+
+```{r}
+# Table of counts for new oldpeak variable
+table(heartdisease.labelled$oldpeak)
+```
+
+```{r}
+# Getting row with undefined label for ST slope
+heartdisease[heartdisease$ST.slope == 0,]
+```
+
+```{r}
+# Removing ST slope undefined value for both data frames
+heartdisease <- heartdisease[heartdisease$ST.slope != 0,]
+heartdisease.labelled <-
+  heartdisease.labelled[heartdisease.labelled$ST.slope != 0,]
+# Labels for ST slope
+mappings.st <- c("1" = "Upsloping", "2" = "Flat", 
+                 "3" = "Downsloping")
+# Applying the labeling
+heartdisease.labelled$ST.slope =
+  mappings.st[as.character(heartdisease$ST.slope)]
+# Bar plot for the labelled ST slope
+ggplot(heartdisease.labelled, aes(ST.slope)) + geom_bar() +
+   labs(title = "Bar plot for ST slope", x = "ST slope")
+```
+
+```{r}
+# Table of counts for new ST slope variable
+table(heartdisease.labelled$ST.slope)
+```
+
+```{r}
+# Labeling the target variable
+heartdisease.labelled$target <- ifelse(heartdisease$target == 1,
+                                       "Heart disease", "Normal")
+# Bar plot for the target variable
+ggplot(heartdisease.labelled, aes(x = target)) + geom_bar() +
+   labs(title = "barplot of target variable", x = "Target")
+```
+
+```{r}
+# Table of counts for new target variable
+table(heartdisease.labelled$target)
+```
+
+```{r}
+# Outputting boxplot outlier bounds for resting blood
+# pressure and cholesterol
+print(paste0("Upper BP: ", quantile(heartdisease$resting.bp.s,
+                                    0.75) + 1.5*(quantile(heartdisease$resting.bp.s, 0.75) -                                            quantile(heartdisease$resting.bp.s,
+                          0.25))))
+print(paste0("Upper Cholesterol: ", quantile(heartdisease$cholesterol, 0.75) +
+               1.5*(quantile(heartdisease$cholesterol, 0.75) -
+                      quantile(heartdisease$cholesterol, 0.25))))
+```
+
+```{r}
+# Lablling entries as either possible outlier or not
+heartdisease.labelled$outlier <- 
+  ifelse(heartdisease$resting.bp.s > 170 |
+           heartdisease$cholesterol > 9.73629 | heartdisease$resting.bp.s < 90 | heartdisease$oldpeak > 4, "Yes", "No")
+```
+
+```{r}
+# Bar plot of possible outlier labels
+ggplot(heartdisease.labelled, aes(x = outlier)) + geom_bar() +
+  labs(title = "Bar plot of whether a data point is a possible
+       outlier", x = "Possible outlier")
+```
+
+```{r}
+# Table of counts for outlier variable
+table(heartdisease.labelled$outlier)
+```
+
+```{r}
+# Number of rows left in final data set
+nrow(heartdisease)
+```
+
+
+```{r}
+# Saving the labelled data frame as a .csv file
+write.csv(heartdisease.labelled, file = "heartdisease_new.csv",
+          row.names = FALSE)
+```
+
