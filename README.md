@@ -86,6 +86,32 @@ The AIC of the found network for the data set excluding the possible outliers ha
 
 #### The age of the patient and heart disease
 
+Here, the probability of the patient having heart disease and not was 0.468106 and 0.541894 respectively. 
 
+<img width="902" height="553" alt="Screenshot From 2026-11-12 10-25-43" src="https://github.com/user-attachments/assets/6fd12f64-ab2c-43cc-82d7-344f1ab893de" />
 
-#### The age of the patient and heart disease
+Here, it seems, people in their 60s seem to be the most likely to have heart disease and people in their 20s were the east likely with probabilities 0.533492 and 0.2929629 respectively. Thus, the possible outliers has no effect on the interactions between age and heart disease. 
+
+#### The sex of the patient and heart disease
+
+The probability here of the patient is male and female here was 0.734053 and 0.265947 respectively. 
+
+<img width="902" height="553" alt="Screenshot From 2026-11-12 10-31-28" src="https://github.com/user-attachments/assets/ecff9c1e-d0e6-47fc-8032-2c8d4641c5e3" />
+
+Here given the patient has heart disease, the probability of the patient being male rises to 0.8731656 and the probability of being female decreases to 0.126834. If the patient does not have heart disease the probabilities of being male and female change to 0.6116236 and 0.3883764 respectively. Here again, the possible outliers do not affect the results much. 
+
+## Conclusion
+
+In this analysis, we have looked at the heart disease project from Kaggle and used Bayesian networks to determine the variables possible underlying relationships. We then looked at how age and heart disease as well as sex and heart disease relate. We found under the model patients in their 60s were most likely diagnosed with heart disease and patients in their 20s the least by a long way. Comparing the results with and without the possible outliers, we found that there was no difference. In the future, I would like to look at possible relationships between more variables. I would also like to find a source to split the cholesterol further with a very high category and repeat the analysis to view any changes in results. 
+
+## References
+
+American Heart Association (2024) Target heart rates chart, www.heart.org. Available at: https://www.heart.org/en/healthy-living/exercise-and-physical-activity/fitness-basics/target-heart-rates (Accessed: November 11, 2026).
+
+Heart Research Institute (2024) What is normal blood pressure by age? • Heart Research Institute, Heart Research Institute UK. Available at: https://www.hriuk.org/health/learn/risk-factors/what-is-normal-blood-pressure-by-age (Accessed: November 11, 2026).
+
+Kashou, A.H., Basit, H. and Malik, A. (2023) ST segment, Nih.gov. StatPearls Publishing. Available at: https://www.ncbi.nlm.nih.gov/books/NBK459364/ (Accessed: November 11, 2026).
+
+NHS (2022) Cholesterol levels - high cholesterol, NHS. Available at: https://www.nhs.uk/conditions/high-cholesterol/cholesterol-levels/ (Accessed: November 11, 2026).
+
+🫀 Heart disease dataset (no date) www.kaggle.com. Available at: https://www.kaggle.com/datasets/mexwell/heart-disease-dataset (Accessed: November 11, 2026).
