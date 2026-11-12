@@ -34,4 +34,21 @@ There were a total of 171 patients having a total cholesterol of 0 with one havi
 
 <img width="863" height="542" alt="Screenshot From 2026-11-11 17-56-24" src="https://github.com/user-attachments/assets/733f7c3f-1ca0-4244-97e5-e8eec77a0509" />
 
+## Methods
+
+### The modelling technique
+
+The model we will be using is a Bayesian network which displays conditional dependencies for the variables. If an arrow points from cholesterol to age say we say that given the patients age, we can predict a probability for their cholesterol. Here we say age is cholesterols parent node. If one variable (or node) is not dependent on another, we say they are independent. Note that even if one node doesn’t have an edge directly to it, they are not automatically independent. One nodes parent could be dependent on the other node for example. There are several reasons why we will use a Bayesian network. First, it allows us to see relationships between the variables. We can also understand their relationships. Thirdly, we can make predictions. 
+
+### Score functions and algorithms
+
+We will treat the structure and resulting conditional probabilities as unknown in this model. To discover the structure of the network, we will use an algorithm called hill climbing (HC). We start with a network structure, then for each iteration, we randomly make a new connection or remove one scoring the new network by a chosen score function asking, “is this better or worse?”. This algorithm also checks if the connections form any closed loops which are not allowed in Bayesian networks.  
+
+The score functions we will use are the AIC and BIC ones. Both measure how closely they match what we observe in the data but also penalize more complicated models. BIC penalizes more heavily. Both will be used to avoid overfitting whilst trying to be as “accurate” as possible. Both are used as AIC may not penalize heavily enough, which is where we will look at the model from the BIC. 
+
+There are some limitations to this approach. HC is a greedy algorithm meaning it will not always choose the “best” structure possible. To combat this, we will use 10-fold cross validation (splitting the data 10 times fitting 90% to fit the model the rest used to test it) repeated 5 times. We will use the average loglikelihood to determine the fit. This will help determine just how well the models truly are. Log likelihood is used due to its easy interpretation and as a simple way to judge the models. 
+
+When predicting the probabilities, we will use a Bayesian approach. We will assume that each probability of the interactions has equal probabilities, letting the data adjust to this assumption. Using the R function bayes, we set iss = 2. The higher the value, the more the prior assumption has an impact. Choosing such a low value is due to having a reasonably large sample size whilst letting the prior have some effect.  
+
+## Results
 
