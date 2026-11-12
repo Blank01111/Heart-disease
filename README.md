@@ -38,7 +38,7 @@ There were a total of 171 patients having a total cholesterol of 0 with one havi
 
 ### The modelling technique
 
-The model we will be using is a Bayesian network which displays conditional dependencies for the variables. If an arrow points from cholesterol to age say we say that given the patients age, we can predict a probability for their cholesterol. Here we say age is cholesterols parent node. If one variable (or node) is not dependent on another, we say they are independent. Note that even if one node doesn’t have an edge directly to it, they are not automatically independent. One nodes parent could be dependent on the other node for example. There are several reasons why we will use a Bayesian network. First, it allows us to see relationships between the variables. We can also understand their relationships. Thirdly, we can make predictions. 
+The model we will be using is a Bayesian network which displays conditional dependencies for the variables. If an arrow points from cholesterol to age say we say that given the patients age, we can predict a probability for their cholesterol. Here we say age is the parent node of cholesterol. If one variable (or node) is not dependent on another, we say they are independent. Note that even if one node doesn’t have an edge directly to it, they are not automatically independent. One nodes parent could be dependent on the other node for example. There are several reasons why we will use a Bayesian network. First, it allows us to see relationships between the variables. We can also understand their relationships. Thirdly, we can make predictions. 
 
 ### Score functions and algorithms
 
@@ -46,9 +46,24 @@ We will treat the structure and resulting conditional probabilities as unknown i
 
 The score functions we will use are the AIC and BIC ones. Both measure how closely they match what we observe in the data but also penalize more complicated models. BIC penalizes more heavily. Both will be used to avoid overfitting whilst trying to be as “accurate” as possible. Both are used as AIC may not penalize heavily enough, which is where we will look at the model from the BIC. 
 
-There are some limitations to this approach. HC is a greedy algorithm meaning it will not always choose the “best” structure possible. To combat this, we will use 10-fold cross validation (splitting the data 10 times fitting 90% to fit the model the rest used to test it) repeated 5 times. We will use the average loglikelihood to determine the fit. This will help determine just how well the models truly are. Log likelihood is used due to its easy interpretation and as a simple way to judge the models. 
+There are some limitations to this approach. HC is a greedy algorithm meaning it will not always choose the “best” structure possible. To combat this, we will use 10-fold cross validation (splitting the data 10 times fitting 90% to fit the model the rest used to test it) repeated 5 times. We will use the average log-likelihood to determine the fit. This will help determine just how well the models truly are. Log likelihood is used due to its easy interpretation and as a simple way to judge the models. 
 
 When predicting the probabilities, we will use a Bayesian approach. We will assume that each probability of the interactions has equal probabilities, letting the data adjust to this assumption. Using the R function bayes, we set iss = 2. The higher the value, the more the prior assumption has an impact. Choosing such a low value is due to having a reasonably large sample size whilst letting the prior have some effect.  
 
 ## Results
 
+### Full dataset
+
+The AIC model had an average log-likelihood of 9.270508, making it marginally better than the BIC model with 9.270383. The AIC model is much more complicated than the BIC network, meaning interpretation would be much more difficult. We will then use the BIC network. 
+
+<img width="788" height="553" alt="Screenshot From 2026-11-12 09-14-05" src="https://github.com/user-attachments/assets/c1125d9a-13c4-4170-af1b-8cc01b558b7d" />
+
+ Above we can see, under this model, cholesterol is independent of all the other variables. The fasting blood sugar, and the old peak of the patient seem to determine the probabilities of the patient’s age. ST slope and the exercise angina categories seem to affect the patient's old peak. The ST slope of the patient seems to be directly related to whether the patient has heart disease or not. Whether the patient has heart disease directly influences the patients' age, has exercise angina, and the patient's chest pain type. Fasting blood sugar levels seem to be directly related to the patients resting systolic blood pressure. Whether the patient has exercise angina directly influences the max heart rate and chest pain type of the patient. Finally, the resting ecg of the patient seems to be conditionally related to their maximum heart rate. 
+
+ From this model the probability the patient has heart disease is 0.468106. Conditioning on the age, this probability changes a lot.
+
+<img width="902" height="553" alt="Screenshot From 2026-11-12 09-36-43" src="https://github.com/user-attachments/assets/40c7921a-fc9e-48a1-b040-3a280b3509e3" />
+
+ It seems here, under this model, patients in their 60s are most likely to have heart disease rising a bit higher than their baseline moving up to 0.533492. Patients in their 20s are much less likely to have heart disease with a probability of 0.2929629.
+
+ 
