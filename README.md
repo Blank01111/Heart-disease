@@ -106,12 +106,12 @@ In this analysis, we have looked at the heart disease project from Kaggle and us
 
 ## References
 
-American Heart Association (2024) Target heart rates chart, www.heart.org. Available at: https://www.heart.org/en/healthy-living/exercise-and-physical-activity/fitness-basics/target-heart-rates (Accessed: November 11, 2026).
+American Heart Association (2024) <i> Target heart rates chart, www.heart.org.</i> Available at: https://www.heart.org/en/healthy-living/exercise-and-physical-activity/fitness-basics/target-heart-rates (Accessed: October 10, 2026).
 
-Heart Research Institute (2024) What is normal blood pressure by age? • Heart Research Institute, Heart Research Institute UK. Available at: https://www.hriuk.org/health/learn/risk-factors/what-is-normal-blood-pressure-by-age (Accessed: November 11, 2026).
+Heart Research Institute (2024) <i>What is normal blood pressure by age? • Heart Research Institute, Heart Research Institute UK.</i> Available at: https://www.hriuk.org/health/learn/risk-factors/what-is-normal-blood-pressure-by-age (Accessed: October 10, 2026).
 
-Kashou, A.H., Basit, H. and Malik, A. (2023) ST segment, Nih.gov. StatPearls Publishing. Available at: https://www.ncbi.nlm.nih.gov/books/NBK459364/ (Accessed: November 11, 2026).
+Kashou, A.H., Basit, H. and Malik, A. (2023) <i>ST segment, Nih.gov. StatPearls Publishing.</i> Available at: https://www.ncbi.nlm.nih.gov/books/NBK459364/ (Accessed: October 10, 2026).
 
-NHS (2022) Cholesterol levels - high cholesterol, NHS. Available at: https://www.nhs.uk/conditions/high-cholesterol/cholesterol-levels/ (Accessed: November 11, 2026).
+NHS (2022) <i>Cholesterol levels - high cholesterol, NHS.</i> Available at: https://www.nhs.uk/conditions/high-cholesterol/cholesterol-levels/ (Accessed: October 04, 2026).
 
-🫀 Heart disease dataset (no date) www.kaggle.com. Available at: https://www.kaggle.com/datasets/mexwell/heart-disease-dataset (Accessed: November 11, 2026).
+🫀 Heart disease dataset (no date) <i>www.kaggle.com.</i> Available at: https://www.kaggle.com/datasets/mexwell/heart-disease-dataset (Accessed: October 13, 2026).
