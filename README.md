@@ -4,7 +4,7 @@
 
 In this analysis, we will look at a data set from Kaggle which is a combination of 5 data sets from Cleveland, Hungarian, Switzerland, Long Beach VA, and Statlog (Heart) Data Set. The link to this dataset can be found in the reference section. Its variables are age (in years), the sex of the patient (categorical), chest pain type (categorical), resting systolic blood pressure (mmHg), serum cholesterol (mg/dl), fasting blood sugar (categorical), resting electrocardiogram results (categorical), maximum heart rate achieved (bpm), exercise induced angina, old peak ST (depression), the scope of the peak exercise ST segment (categorical), and target (categorical variable of whether the patient has heart disease or not). Altogether, there are 1190 observations. 
 
-The following questions are of interest. How does the patient's cholesterol affect whether they have heart disease? What are the interactions between heart disease and age? How is the patient's sex and whether they have heart disease related? What else affects whether the patient has heart disease? How does fasting blood sugar affect heart disease? 
+The following questions are of interest. Which variables could possibly affect other variables? How does the patient's cholesterol affect whether they have heart disease? What are the interactions between heart disease and age? How is the patient's sex and whether they have heart disease related? What else affects heart disease?
 
 ## Data preprocessing
 
@@ -66,4 +66,7 @@ The AIC model had an average log-likelihood of 9.270508, making it marginally be
 
  It seems here, under this model, patients in their 60s are most likely to have heart disease rising a bit higher than their baseline moving up to 0.533492. Patients in their 20s are much less likely to have heart disease with a probability of 0.2929629.
 
- 
+The probability of a patient in this data set being female or male was 0.265947 and 0.734053 respectively. What happens when we include whether they have heart disease or not in the equation?
+
+<img width="902" height="553" alt="Screenshot From 2026-11-12 09-55-13" src="https://github.com/user-attachments/assets/1f744ed8-c070-4f9c-9b14-b9e5c783da90" />
+
