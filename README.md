@@ -54,11 +54,15 @@ When predicting the probabilities, we will use a Bayesian approach. We will assu
 
 ### Full dataset
 
+#### The chosen structure of the network
+
 The AIC model had an average log-likelihood of 9.270508, making it marginally better than the BIC model with 9.270383. The AIC model is much more complicated than the BIC network, meaning interpretation would be much more difficult. We will then use the BIC network. 
 
 <img width="788" height="553" alt="Screenshot From 2026-11-12 09-14-05" src="https://github.com/user-attachments/assets/c1125d9a-13c4-4170-af1b-8cc01b558b7d" />
 
  Above we can see, under this model, cholesterol is independent of all the other variables. The fasting blood sugar, and the old peak of the patient seem to determine the probabilities of the patient’s age. ST slope and the exercise angina categories seem to affect the patient's old peak. The ST slope of the patient seems to be directly related to whether the patient has heart disease or not. Whether the patient has heart disease directly influences the patients' age, has exercise angina, and the patient's chest pain type. Fasting blood sugar levels seem to be directly related to the patients resting systolic blood pressure. Whether the patient has exercise angina directly influences the max heart rate and chest pain type of the patient. Finally, the resting ecg of the patient seems to be conditionally related to their maximum heart rate. 
+
+#### The age of the patient and heart disease
 
  From this model the probability the patient has heart disease is 0.468106. Conditioning on the age, this probability changes a lot.
 
@@ -66,7 +70,22 @@ The AIC model had an average log-likelihood of 9.270508, making it marginally be
 
  It seems here, under this model, patients in their 60s are most likely to have heart disease rising a bit higher than their baseline moving up to 0.533492. Patients in their 20s are much less likely to have heart disease with a probability of 0.2929629.
 
+#### The sex of the patient and heart disease
+
 The probability of a patient in this data set being female or male was 0.265947 and 0.734053 respectively. What happens when we include whether they have heart disease or not in the equation?
 
-<img width="902" height="553" alt="Screenshot From 2026-11-12 09-55-13" src="https://github.com/user-attachments/assets/1f744ed8-c070-4f9c-9b14-b9e5c783da90" />
+<img width="902" height="553" alt="Screenshot From 2026-11-12 09-59-58" src="https://github.com/user-attachments/assets/c0fd33c3-f2ee-4a65-bf09-a2089a8b5525" />
 
+From this, if the patient has heart disease, their chance they're male seems to rise to 0.8731656 and female decreases to 0.12684344. If they don’t have heart disease, the probability they are male decreases to 0.6116236 and female rises to 0.3883764. Of course, take this with a pinch of salt. More analysis would need to be done. 
+
+### Data set excluding outliers
+
+#### The chosen structure of the network
+
+The AIC of the found network for the data set excluding the possible outliers had an average log-likelihood of 9.27050 whilst the BIC is slightly worse with an average value of 9.270383. Again, the network created with the AIC scoring function was way more complicated than is necessary, so the network using the BIC scoring function was used. This network had the same structure as the one with the full data set, so the same comments there apply here. The possible outliers then do not seem to affect the structure of the network. 
+
+#### The age of the patient and heart disease
+
+
+
+#### The age of the patient and heart disease
