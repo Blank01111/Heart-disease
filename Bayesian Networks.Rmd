@@ -185,7 +185,7 @@ library(ggplot2)
 ```{r}
 # Plotting a line graph of age level and probability of having heart disease
 # Conditioned on it
-ggplot(data = NULL, aes(x = c(2:7), y = probs.hd.age)) + geom_line(color = 
+ggplot(data = NULL, aes(x = c(1:6), y = probs.hd.age)) + geom_line(color = 
 "blue") + scale_x_continuous(breaks=1:6, labels=c("20s", "30s", "40s", 
                                                   "50s", "60s", "70s")) + 
   labs(x = "Age", y = "P(target = Heartdisease | age = x)", 
@@ -322,7 +322,8 @@ ggplot() + geom_col(data = probs.hd.target.df, aes(x = c("Female",
   labs(x = "Target", y = "P(sex | target = x)", 
        title = "Probability of a patient being a sex conditioned on target") +
   guides(fill=guide_legend(title="Target")) +
-  theme(panel.background = element_rect(color = "blue"))
+  theme(panel.background = element_rect(color = "blue"))  + 
+  scale_fill_manual(values = c("red", "green")) 
 ```
 
 ```{r}
@@ -470,13 +471,13 @@ for (age in ages){
 ```{r}
 # Plotting a line graph of age level and probability of having heart disease
 # Conditioned on it
-ggplot(data = NULL, aes(x = c(2:7), y = probs.hd.age)) + geom_line(color = 
-"blue") + scale_x_continuous(breaks=1:6, labels=c("20s", "30s", "40s", 
+ggplot(data = NULL, aes(x = c(1:6), y = probs.hd.age)) + geom_line(color = 
+"purple") + scale_x_continuous(breaks=1:6, labels=c("20s", "30s", "40s", 
                                                   "50s", "60s", "70s")) + 
   labs(x = "Age", y = "P(target = Heartdisease | age = x)", 
        title = "Probability of a patient having heart disease conditioned on 
        their age") + 
-  theme(panel.background = element_rect(color = "blue"))
+  theme(panel.background = element_rect(color = "purple"))
 ```
 
 ```{r}
@@ -607,5 +608,36 @@ ggplot() + geom_col(data = probs.hd.target.df, aes(x = c("Female",
   labs(x = "Target", y = "P(sex | target = x)", 
        title = "Probability of a patient being a sex conditioned on target") +
   guides(fill=guide_legend(title="Target")) +
-  theme(panel.background = element_rect(color = "blue"))
+  theme(panel.background = element_rect(color = "blue"))  + 
+  scale_fill_manual(values = c("red", "green")) 
+```
+
+```{r}
+# Data set excluding all possible outliers and excluding the outlier
+# indicator
+heartdisease.sub <- heartdisease.final[heartdisease.final$outlier == "No",-13]
+```
+
+```{r}
+# Cross validation
+cv.results.aic <- bn.cv(
+  # Data set used
+  data = heartdisease.sub,
+  # Hill climbing algorithm is being used
+  bn = "hc",
+  # Scoring for the hill climbing algorithm is AIC
+  algorithm.args = list(score = "aic"),
+  # Probability fit type (Bayesian)
+  fit = "bayes",
+  # How much influence the prior has on the fitted probability
+  fit.args = list(iss = 2),
+  # Loss function for the cross validation (log-likelihood)
+  loss =  "logl",
+  # Number of folds
+  k = 10,
+  # Number of times to  repeat the 10-fold cross-validation
+  runs = 5
+)
+# Outputting the results
+print(cv.results.aic)
 ```
